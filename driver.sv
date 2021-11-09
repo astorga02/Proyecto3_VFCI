@@ -2,7 +2,7 @@
 //VERIFICACIÓN FUNCIONAL DE CIRCUITOS INTEGRADOS
 //Proyecto 2
 //Lenguaje: SystemVerilog
-//Creado por: Mac Alfred Pinnock Chacón (mcalfred32@gmail.com) y Susana Astorga
+//Creado por: Mac Alfred Pinnock Chacón (mcalfred32@gmail.com) y Susana Astorga Rodríguez (susana.0297.ar@gmail.com)
 class driver extends uvm_driver #(Item); //instancio el driver con el parámetro Item que va a recibir
   `uvm_component_utils(driver) //se registra la clase en la fábrica
   function new(string name= "driver", uvm_component parent = null); //se crea el constructor
