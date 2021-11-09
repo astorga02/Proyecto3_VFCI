@@ -2,12 +2,8 @@
 //VERIFICACIÓN FUNCIONAL DE CIRCUITOS INTEGRADOS
 //Proyecto 2
 //Lenguaje: SystemVerilog
-//Creado por: Mac Alfred Pinnock Chacón (mcalfred32@gmail.com) y Susana Astorga
-//INSTITUTO TECNOLÓGICO DE COSTA RICA
-//VERIFICACIÓN FUNCIONAL DE CIRCUITOS INTEGRADOS
-//Proyecto 2
-//Lenguaje: SystemVerilog
-//Creado por: Mac Alfred Pinnock Chacón (mcalfred32@gmail.com) y Susana Astorga
+//Creado por: Mac Alfred Pinnock Chacón (mcalfred32@gmail.com) y Susana Astorga Rodríguez (susana.0297.ar@gmail.com)
+
 
 class env extends uvm_env;
 
