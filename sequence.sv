@@ -12,15 +12,15 @@ class seq_aleatoria extends uvm_sequence;
     super.new(name);
   endfunction
 
-  rand int num_item; //número de items que van a ser enviados
+  //rand int num_item; //número de items que van a ser enviados
 
 
-  constraint c_num_item {soft num_item inside {[5:10]};}  // Limite de la cantidad aleatoria de items enviados, o sea un número entre 5 y 10
+  //num_item = numero_tests;  // Limite de la cantidad aleatoria de items enviados, o sea un número entre 5 y 10
 
   virtual task body();
     `uvm_info("SEQ", "Inicio de la secuencia aletoria", UVM_HIGH)
 
-    for(int i = 0; i < num_item; i++)begin
+    for(int i = 0; i < numero_tests; i++)begin
       Item item = Item::type_id::create("item");
 
       // Configuración de constraints
@@ -40,7 +40,7 @@ class seq_aleatoria extends uvm_sequence;
 
     end
 
-    `uvm_info("SEQ",$sformatf("Se generaron %0d items del tipo aleatorio", num_item),UVM_LOW);
+    `uvm_info("SEQ",$sformatf("Se generaron %0d items del tipo aleatorio", numero_tests),UVM_LOW);
   endtask
 
 endclass
@@ -104,13 +104,8 @@ class seq_overflow extends uvm_sequence;
     super.new(name);
   endfunction
 
-
-  rand int num_item; //número de items enviados
-
-  constraint c_num_item {soft num_item inside {[5:10]};}
-
   virtual task body();
-    for(int i = 0; i < num_item; i++)begin
+    for(int i = 0; i <= numero_tests; i++)begin
       
       Item item = Item::type_id::create("item");
 
@@ -133,7 +128,7 @@ class seq_overflow extends uvm_sequence;
 
     end
 
-    `uvm_info("SEQ",$sformatf("Se generaron %0d items del tipo overflow", num_item),UVM_LOW);
+    `uvm_info("SEQ",$sformatf("Se generaron %0d items del tipo overflow", numero_tests),UVM_LOW);
   endtask
 endclass
 
@@ -147,12 +142,8 @@ class seq_underflow extends uvm_sequence;
     super.new(name);
   endfunction
 
-  rand int num_item; //número de items enviados
-
-  constraint c_num_item {soft num_item inside {[5:10]};}
-
   virtual task body();
-    for(int i = 0; i < num_item; i++)begin
+    for(int i = 0; i < numero_tests; i++)begin
       
       Item item = Item::type_id::create("item");
 
@@ -175,7 +166,7 @@ class seq_underflow extends uvm_sequence;
 
     end
 
-    `uvm_info("SEQ",$sformatf("Se generaron %0d items del tipo underflow", num_item),UVM_LOW);
+    `uvm_info("SEQ",$sformatf("Se generaron %0d items del tipo underflow", numero_tests),UVM_LOW);
   endtask
 endclass
 
@@ -189,12 +180,8 @@ class seq_NaN extends uvm_sequence;
     super.new(name);
   endfunction
 
-  rand int num_item; //número de items enviados
-
-  constraint c_num_item {soft num_item inside {[5:10]};}
-
   virtual task body();
-    for(int i = 0; i < num_item; i++)begin
+    for(int i = 0; i < numero_tests; i++)begin
       
       Item item = Item::type_id::create("item");
 
@@ -217,7 +204,7 @@ class seq_NaN extends uvm_sequence;
 
     end
 
-    `uvm_info("SEQ",$sformatf("Se generaron %0d items del tipo NaN", num_item),UVM_LOW);
+    `uvm_info("SEQ",$sformatf("Se generaron %0d items del tipo NaN", numero_tests),UVM_LOW);
   endtask
 endclass
 
@@ -231,13 +218,9 @@ class seq_inf extends uvm_sequence;
   function new(string name="seq_inf");  //se crea el constructor
     super.new(name);
   endfunction
-
-  rand int num_item; //número de items enviados
-
-  constraint c_num_item {soft num_item inside {[5:10]};}
-
+  
   virtual task body();
-    for(int i = 0; i < num_item; i++)begin
+    for(int i = 0; i <= numero_tests; i++)begin
       
       Item item = Item::type_id::create("item");
 
@@ -260,7 +243,7 @@ class seq_inf extends uvm_sequence;
 
     end
 
-    `uvm_info("SEQ",$sformatf("Se generaron %0d items del tipo inf", num_item),UVM_LOW);
+    `uvm_info("SEQ",$sformatf("Se generaron %0d items del tipo inf", numero_tests),UVM_LOW);
   endtask
 endclass
 
@@ -280,10 +263,11 @@ class escenario1 extends  uvm_sequence;
   endfunction
 
   seq_aleatoria Secuencia_aleatorio;
-  seq_alternancia Secuencia_alternancia;
 
   task body();
-    `uvm_do(Secuencia_alternancia);
+    string concatenado;
+    concatenado = {"Dato_X",",","Dato_Y",",","Resultado_final_Z",",","Resultado_final_correcto",",","Modo_redondeo",",","Overflow",",","Underflow"};//orden de las columnas
+      $system($sformatf("echo %0s >> reporte.csv", concatenado));
     `uvm_do(Secuencia_aleatorio);
 endtask : body
 
@@ -303,13 +287,18 @@ class escenario2 extends  uvm_sequence;
   function new(string name="escenario2"); //se crea el constructor
     super.new(name);
   endfunction
-
+  
+  seq_alternancia Secuencia_alternancia;
   seq_overflow Secuencia_overflow;
   seq_underflow Secuencia_underflow;
   seq_NaN Secuencia_NaN;
   seq_inf Secuencia_inf;
 
   task body();
+     string concatenado;
+     concatenado = {"Dato_X",",","Dato_Y",",","Resultado_final_Z",",","Resultado_final_correcto",",","Modo_redondeo",",","Overflow",",","Underflow"};//orden de las columnas
+     $system($sformatf("echo %0s >> reporte.csv", concatenado));
+    `uvm_do(Secuencia_alternancia);
     `uvm_do(Secuencia_overflow);
     `uvm_do(Secuencia_underflow);
     `uvm_do(Secuencia_NaN);

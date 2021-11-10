@@ -6,7 +6,6 @@
 
 //`timescale 1ns / 1ps
 
-//`include "uvm_macros.svh"
 //`include "multiplicador_32_bits_FP_IEEE.sv"
 `include "interface.sv"
 `include "sequence_item.sv"
@@ -17,6 +16,8 @@
 `include "agent.sv"
 `include "environment.sv"
 `include "test.sv"
+
+parameter numero_tests = 100;
 
 module top_testbench;
 
@@ -38,7 +39,7 @@ module top_testbench;
 		clk <= 0;
 		`uvm_info("TOP", "Test start", UVM_LOW);
 		uvm_config_db#(virtual dut_if)::set(null,"uvm_test_top","dut_vif",_if); //se conecta la interface virtual con el test_top
-      run_test("test_10"); //se coloca el nombre del test a probar (test_01 o test_10)
+      run_test("escenario_2"); //se coloca el nombre del test a probar (escenario_1 o escenario_2)
 	end
 	
 endmodule

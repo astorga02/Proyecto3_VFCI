@@ -31,8 +31,6 @@ class test extends uvm_test;
 
   virtual task run_phase(uvm_phase phase);
     phase.raise_objection(this); //se levanta una objeción 
-    // apply_reset();
-
     seq.start(ambiente_instancia.agente_instancia.secuenciador_instancia); //se inicializa el secuenciador
     #200;
     phase.drop_objection(this); //luego se baja la objeción 
@@ -44,8 +42,8 @@ endclass
 
 
 // Test del escenario 1
-class test_01 extends test;
-  `uvm_component_utils(test_01) //se registra la clase en la fábrica
+class escenario_1 extends test;
+  `uvm_component_utils(escenario_1) //se registra la clase en la fábrica
   
   function new(string name="escenario1",uvm_component parent=null); //se crea el constructor
     super.new(name,parent);
@@ -66,18 +64,17 @@ class test_01 extends test;
     `uvm_info("escenario1", "Iniciando la ejecucion de la prueba", UVM_HIGH)
     phase.raise_objection(this);
     seq.start(ambiente_instancia.agente_instancia.secuenciador_instancia);
-    #200;
     phase.drop_objection(this);
 
   endtask
 
-endclass  //endclass : test_01
+endclass
 
 
 // Test del escenario 2: Se generan secuencias que causen overflow, underflow, inf y NaN
-class test_10 extends  test;
+class escenario_2 extends  test;
 
-  `uvm_component_utils(test_10) //se registra la clase en la fábrica
+  `uvm_component_utils(escenario_2) //se registra la clase en la fábrica
   
   function new(string name = "escenario2",uvm_component parent=null); //se crea el constructor
     super.new(name,parent);
@@ -96,9 +93,8 @@ class test_10 extends  test;
     `uvm_info("escenario2", "Iniciando la ejecucion de la prueba", UVM_HIGH)
     phase.raise_objection(this);
     seq.start(ambiente_instancia.agente_instancia.secuenciador_instancia);
-    #200;
     phase.drop_objection(this);
 
   endtask
 
-endclass : test_10
+endclass

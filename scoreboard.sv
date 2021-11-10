@@ -6,7 +6,6 @@
 
 class scoreboard extends uvm_scoreboard;
   `uvm_component_utils(scoreboard)
-    
     function new(string name="scoreboard",uvm_component parent=null);
         super.new(name, parent);
     endfunction
@@ -17,7 +16,8 @@ class scoreboard extends uvm_scoreboard;
     real mantisaZ; //variables con decimales
     real exponenteZ;
     real tot_mantisaZ; 
-  	string concatenado;
+  	string concatenado1;
+  string concatenado2;
     bit sign_field_Z;
     bit underflow_en_entrada_X,overflow_en_entrada_X,nan_X,inf_X,underflow_en_entrada_Y,overflow_en_entrada_Y,nan_Y,inf_Y,underflow_en_entrada_Z,overflow_en_entrada_Z,nan_Z,inf_Z;
   	string Dato_X, Dato_Y, Resultado_final_Z, Resultado_final_correcto, Modo_redondeo, Overflow, Underflow;
@@ -27,7 +27,7 @@ class scoreboard extends uvm_scoreboard;
     bit exponente_dato_Y;
     bit exponente_dato_Z;   
 
-
+	
     uvm_analysis_imp #(Item, scoreboard) m_analysis_imp;
 
     virtual function void build_phase(uvm_phase phase);
@@ -133,21 +133,21 @@ class scoreboard extends uvm_scoreboard;
         inf_Z = inf_X | inf_Y | inf_Z;      
 
         if (nan_Z) begin
-          resultZ={sign_field_Z,1'b0,8'hFF,1'b1,22'b0};  //resultado final correcto 
+          resultZ={sign_field_Z,1'b0,8'hFF,1'b1,22'b0};  //resultado NaN activo 
         end 
         else if (inf_Z) begin
-          resultZ={sign_field_Z, 8'hFF,23'b0};        //resultado final correcto      
+          resultZ={sign_field_Z, 8'hFF,23'b0};        //resultado infinito activo     
         end
         else if (underflow_en_entrada_Z) begin
-            resultZ={sign_field_Z,8'b0,23'b0};  //resultado final correcto 
+          resultZ={sign_field_Z,8'b0,23'b0};  //resultado underflow activo 
         end 
         else if (overflow_en_entrada_Z) begin
-            resultZ={sign_field_Z,8'hFF,23'b0};  //resultado final correcto 
+          resultZ={sign_field_Z,8'hFF,23'b0};  //resultado overflow activo 
         end
         else begin
           resultZ={sign_field_Z,exponente_dato_Z,redo_mantisa_datoZ};  //resultado final correcto 
         end
-        `uvm_info("SCBD", $sformatf("Mode=%b Op_x=%b Op_y=%b Result=%b Correct=%b Overflow=%b Underflow=%b", item.r_mode,item.fp_X,item.fp_Y,item.fp_Z,resultZ,item.ovrf,item.udrf), UVM_LOW)        
+      `uvm_info("SCBD", $sformatf("Mode = %b Entrada x = %b Entrada y = %b Resultado del DUT = %b Resultado esperado = %b Overflow = %b Underflow = %b", item.r_mode,item.fp_X,item.fp_Y,item.fp_Z,resultZ,item.ovrf,item.udrf), UVM_LOW)        
         //Impresion del reporte
         Dato_X.bintoa(item.fp_X);
         Dato_Y.bintoa(item.fp_Y);
@@ -156,7 +156,7 @@ class scoreboard extends uvm_scoreboard;
         Modo_redondeo.bintoa(item.r_mode);
         Overflow.bintoa(item.ovrf);  
         Underflow.bintoa(item.udrf);      
-        concatenado = {Dato_X,",",Dato_Y,",",Resultado_final_Z,",",Resultado_final_correcto,",",Modo_redondeo,",",Overflow,",",Underflow};//orden de las columnas
-        $system($sformatf("echo %0s >> reporte.csv", concatenado));
+        concatenado1 = {Dato_X,",",Dato_Y,",",Resultado_final_Z,",",Resultado_final_correcto,",",Modo_redondeo,",",Overflow,",",Underflow};//orden de las columnas
+      $system($sformatf("echo %0s >> reporte.csv", concatenado1));
     endfunction
 endclass
