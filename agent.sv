@@ -2,7 +2,7 @@
 //VERIFICACIÓN FUNCIONAL DE CIRCUITOS INTEGRADOS
 //Proyecto 2
 //Lenguaje: SystemVerilog
-//Creado por: Mac Alfred Pinnock Chacón (mcalfred32@gmail.com) y Susana Sevilla
+//Creado por: Mac Alfred Pinnock Chacón (mcalfred32@gmail.com) y Susana Astorga Rodríguez (susana.0297.ar@gmail.com)
 class agent extends uvm_agent;
 
   `uvm_component_utils(agent) //se registra la clase en la fábrica
