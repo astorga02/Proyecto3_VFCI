@@ -253,7 +253,6 @@ endclass
 
   // Escenario 1, dos tipos de secuencias:
   // Aleatorio
-  // Alternancia (cambiar abajo)
 class escenario1 extends  uvm_sequence;
 
   `uvm_object_utils(escenario1); //se registra la clase en la fábrica
