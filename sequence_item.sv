@@ -26,14 +26,15 @@ class Item extends uvm_sequence_item;
 
   //restricción dato de exponente y mantisa
   constraint c_item_aleat  {
-    // Exponente
-    fp_X[30:23] <= 8'hFF;  
-    fp_Y[30:23] <= 8'hFF;
 
-    // Mantisa                                    
-    fp_X[22:0] <= 23'h7FFFFF;                       
-    fp_Y[22:0] <= 23'h7FFFFF;
+    //exponente
+    fp_X[30:23] <= 8'hFE;
+    fp_Y[30:23] <= 8'hFE;
 
+     //Mantisa
+    fp_X[22:0] <= 23'h8F;
+    fp_Y[22:0] <= 23'h8F;    
+ 
   }
 
   //restricción de redondeo
