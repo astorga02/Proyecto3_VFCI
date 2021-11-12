@@ -707,28 +707,26 @@ module ROUND(
   
 endmodule
 
-module EXP(
+module EXP(             //module con cambios agregados 
   input norm,
   input [7:0]exp_X, exp_Y,
-  input nan,
   output [7:0]exp_Z,
   output ovrf, udrf);
   
   wire [8:0]buffer;
-  wire inf_X, inf_Y;
-  wire zer_X, zer_Y;
+  wire over_X, over_Y, under_X, under_Y;
   
   assign buffer = exp_X + exp_Y;
   
   wire [7:0]bias;
 
-  assign inf_X = &exp_X;
-  assign inf_Y = &exp_Y;
-  assign zer_X = ~|exp_X;
-  assign zer_Y = ~|exp_Y; 
+  assign over_X = &exp_X;
+  assign over_Y = &exp_Y;
+  assign under_X = ~|exp_X;
+  assign under_Y = ~|exp_Y; 
   assign bias = {7'b0111111, !norm};
-  assign ovrf = {!nan}&{{buffer >= {255 + bias}}|{inf_X}|{inf_Y}};
-  assign udrf = {!nan}&{{buffer <= bias}|{zer_X}|{zer_Y}};
+  assign ovrf = {{buffer >= {255 + bias}}|{over_X}|{over_Y}};
+  assign udrf = {{buffer <= bias}|{under_X}|{under_Y}};
 
   
   assign exp_Z = exp_X + exp_Y - bias;
@@ -829,7 +827,6 @@ module FPM(
   EXP EXP(.norm(norm_n | norm_r),
           .exp_X(exp_X),
           .exp_Y(exp_Y),
-          .nan(nan),
           
           .exp_Z(exp_Z),
           .ovrf(ovrf),

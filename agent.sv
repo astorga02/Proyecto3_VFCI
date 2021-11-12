@@ -15,8 +15,8 @@ class agent extends uvm_agent;
   monitor monitor_instancia;  //monitor handle
   uvm_sequencer #(Item) secuenciador_instancia;  //sequencer handle
 
-  virtual function void build_phase(uvm_phase phase);
-    super.build_phase(phase);
+  virtual function void build_phase(uvm_phase phase); //contrucción de la interface virtual
+    super.build_phase(phase); 
     driver_instancia = driver::type_id::create("driver_instancia",this);  //se saca de la fábrica     
     secuenciador_instancia = uvm_sequencer#(Item)::type_id::create("secuenciador_instancia",this); //se saca de la fábrica 
     monitor_instancia = monitor::type_id::create("monitor_instancia",this);  //se saca de la fábrica 
