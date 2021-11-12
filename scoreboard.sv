@@ -5,8 +5,9 @@
 //Creado por: Mac Alfred Pinnock Chacón (mcalfred32@gmail.com) y Susana Astorga
 
 class scoreboard extends uvm_scoreboard;
-  `uvm_component_utils(scoreboard)
-    function new(string name="scoreboard",uvm_component parent=null);
+  `uvm_component_utils(scoreboard) //se registra la clase en la fábrica
+
+    function new(string name="scoreboard",uvm_component parent=null); //se crea el constructor
         super.new(name, parent);
     endfunction
 
@@ -19,18 +20,16 @@ class scoreboard extends uvm_scoreboard;
   	string concatenado1;
   string concatenado2;
     bit sign_field_Z;
-    bit underflow_en_entrada_X,overflow_en_entrada_X,nan_X,inf_X,underflow_en_entrada_Y,overflow_en_entrada_Y,nan_Y,inf_Y,underflow_en_entrada_Z,overflow_en_entrada_Z,nan_Z,inf_Z;
+    bit und_X,over_X,nan_X,inf_X,und_Y,over_Y,nan_Y,inf_Y,und_Z,over_Z,nan_Z,inf_Z;
   	string Dato_X, Dato_Y, Resultado_final_Z, Resultado_final_correcto, Modo_redondeo, Overflow, Underflow;
   	bit [24:0] mantisa_datoZ; 
   	bit [22:0] mantisa_dato_X, mantisa_dato_Y, redo_mantisa_datoZ;
-    bit [7:0] exponente_dato_X;
-    bit exponente_dato_Y;
-    bit exponente_dato_Z;   
+  bit [7:0] exponente_dato_X, exponente_dato_Y, exponente_dato_Z;   
 
 	
     uvm_analysis_imp #(Item, scoreboard) m_analysis_imp;
 
-    virtual function void build_phase(uvm_phase phase);
+    virtual function void build_phase(uvm_phase phase); //contrucción de la interface virtual
       	super.build_phase(phase);
         m_analysis_imp = new("m_analysis_imp",this);
     endfunction
@@ -96,14 +95,17 @@ class scoreboard extends uvm_scoreboard;
                     //ya está truncado
                 end
             endcase            
-        end         
+        end    
+
+        //condicional de redondeo de mantisa del resultado     
       	if (mantisa_datoZ[24]) begin
             redo_mantisa_datoZ=mantisa_datoZ[23:1];
             exponenteZ+=1; 
         end else begin
            redo_mantisa_datoZ=mantisa_datoZ[22:0];
         end
-      	      
+
+        //condicionales para el valor de exp ante overflow, underflow    
         if ($rtoi(exponenteZ)<=0) begin
             exponente_dato_Z=8'b0; //Underflow
         end 
@@ -113,42 +115,66 @@ class scoreboard extends uvm_scoreboard;
         else begin
             exponente_dato_Z=exponenteZ; //Normal
         end
+      
+         //condicionales de underflow, overflow, NaN, inf
 
-        underflow_en_entrada_X  =!(|exponente_dato_X)?1 : 0; //si el exponente es 0 entonces hay underflow
-        overflow_en_entrada_X =(&exponente_dato_X)? 1 : 0; //si todo el exponente es 1 entonces es overflow
-        underflow_en_entrada_Y  =!(|exponente_dato_Y)?1 : 0; //si el exponente es 0 entonces hay underflow
-        overflow_en_entrada_Y =(&exponente_dato_Y)? 1 : 0; //si todo el exponente es 1 entonces es overflow      
-        underflow_en_entrada_Z  =!(|exponente_dato_Z)?1 : 0; 
-        underflow_en_entrada_Z= underflow_en_entrada_Z|underflow_en_entrada_Y|underflow_en_entrada_X;
-        overflow_en_entrada_Z =(&exponente_dato_Z)? 1 : 0; 
-        overflow_en_entrada_Z = overflow_en_entrada_X|overflow_en_entrada_Y|overflow_en_entrada_Z;       
+        und_X  =!(|exponente_dato_X)?1 : 0; //si el exponente es 0 entonces hay underflow
+        over_X =(&exponente_dato_X)? 1 : 0; //si todo el exponente son 1 entonces es overflow
+
+        und_Y  =!(|exponente_dato_Y)?1 : 0; //si el exponente es 0 entonces hay underflow
+        over_Y =(&exponente_dato_Y)? 1 : 0; //si todo el exponente son 1 entonces es overflow
+        
+        und_Z  =!(|exponente_dato_Z)?1 : 0; 
+        und_Z= und_Z|und_Y|und_X;
+
+        over_Z =(&exponente_dato_Z)? 1 : 0; 
+        over_Z = over_X|over_Y|over_Z;
+
+       
         nan_X = &exponente_dato_X & |mantisa_dato_X; //definicion de NaN
         nan_Y = &exponente_dato_Y & |mantisa_dato_Y;
 
-        nan_Z = {underflow_en_entrada_X & overflow_en_entrada_Y} | {overflow_en_entrada_X & underflow_en_entrada_Y} | nan_Z; 
-        nan_Z = nan_X | nan_Y | nan_Z;       
+        nan_Z = {und_X & over_Y} | {over_X & und_Y} | nan_Z; 
+        nan_Z = nan_X | nan_Y | nan_Z; 
+      
+      
         inf_X = &exponente_dato_X & ~|mantisa_dato_X; //definición de inf
         inf_Y = &exponente_dato_Y & ~|mantisa_dato_Y;
-        inf_Z = {underflow_en_entrada_X & overflow_en_entrada_Y} | {overflow_en_entrada_X & underflow_en_entrada_Y} | inf_Z; 
-        inf_Z = inf_X | inf_Y | inf_Z;      
+
+        inf_Z = {und_X & over_Y} | {over_X & und_Y} | inf_Z; 
+        inf_Z = inf_X | inf_Y | inf_Z; 
+      
+
 
         if (nan_Z) begin
-          resultZ={sign_field_Z,1'b0,8'hFF,1'b1,22'b0};  //resultado NaN activo 
+          resultZ={sign_field_Z,1'b0,8'hFF,1'b1,22'b0};  //resultado final correcto 
         end 
         else if (inf_Z) begin
-          resultZ={sign_field_Z, 8'hFF,23'b0};        //resultado infinito activo     
+          resultZ={sign_field_Z, 8'hFF,23'b0};        //resultado final correcto      
         end
-        else if (underflow_en_entrada_Z) begin
-          resultZ={sign_field_Z,8'b0,23'b0};  //resultado underflow activo 
+        else if (und_Z) begin
+            resultZ={sign_field_Z,8'b0,23'b0};  //resultado final correcto 
         end 
-        else if (overflow_en_entrada_Z) begin
-          resultZ={sign_field_Z,8'hFF,23'b0};  //resultado overflow activo 
+        else if (over_Z) begin
+            resultZ={sign_field_Z,8'hFF,23'b0};  //resultado final correcto 
         end
         else begin
-          resultZ={sign_field_Z,exponente_dato_Z,redo_mantisa_datoZ};  //resultado final correcto 
+            resultZ={sign_field_Z,exponente_dato_Z,redo_mantisa_datoZ};  //resultado final correcto 
         end
-      `uvm_info("SCBD", $sformatf("Mode = %b Entrada x = %b Entrada y = %b Resultado del DUT = %b Resultado esperado = %b Overflow = %b Underflow = %b", item.r_mode,item.fp_X,item.fp_Y,item.fp_Z,resultZ,item.ovrf,item.udrf), UVM_LOW)        
-        //Impresion del reporte
+
+      
+      //información a mostrar 
+      `uvm_info("SCBD", $sformatf("Mode = %b Entrada x = %b Entrada y = %b Resultado del DUT = %b Resultado esperado = %b Overflow = %b Underflow = %b", item.r_mode,item.fp_X,item.fp_Y,item.fp_Z,resultZ,item.ovrf,item.udrf), UVM_LOW)  
+
+
+       //condicionales para verificar si el resultado es igual al esperado 
+      if(item.fp_Z != resultZ ) begin
+        `uvm_error("SCBD",$sformatf("Todo mal, resultados no coinciden  Result=%b Correct=%b", item.fp_Z,resultZ))
+        end else begin
+          `uvm_info("SCBD",$sformatf("Todo bien, resultados si coinciden Result=%b Correct=%b",item.fp_Z,resultZ), UVM_HIGH)
+        end
+      
+        //Creación e Impresion del reporte
         Dato_X.bintoa(item.fp_X);
         Dato_Y.bintoa(item.fp_Y);
         Resultado_final_Z.bintoa(item.fp_Z);
