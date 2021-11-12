@@ -42,8 +42,8 @@ endclass
 
 
 // Test del escenario 1
-class escenario_1 extends test;
-  `uvm_component_utils(escenario_1) //se registra la clase en la fábrica
+class test_escenario1 extends test;
+  `uvm_component_utils(test_escenario1) //se registra la clase en la fábrica
   
   function new(string name="escenario1",uvm_component parent=null); //se crea el constructor
     super.new(name,parent);
@@ -72,9 +72,9 @@ endclass
 
 
 // Test del escenario 2: Se generan secuencias que causen overflow, underflow, inf y NaN
-class escenario_2 extends  test;
+class test_escenario2 extends  test;
 
-  `uvm_component_utils(escenario_2) //se registra la clase en la fábrica
+  `uvm_component_utils(test_escenario2) //se registra la clase en la fábrica
   
   function new(string name = "escenario2",uvm_component parent=null); //se crea el constructor
     super.new(name,parent);
