@@ -59,8 +59,8 @@ class scoreboard extends uvm_scoreboard;
         mantisa_datoZ=mantisaZ_sinredo[32:9];//el resultado se trunca
         if (tot_mantisaZ!=0) begin  //se redondea por que el valor no es exacto
             $display("Resultado redondeado");
-            case (item.r_mode) //se redondea de acuerdo a los tipos de redondeo que hay
-                3'b000:begin // redondea al más cercano                   
+          if (item.r_mode == 3'b000) begin //se redondea de acuerdo a los tipos de redondeo que hay
+                 // redondea al más cercano                   
                   	if (mantisaZ_sinredo[8]) begin
                       	if (mantisaZ_sinredo[7:0]!=0) begin
                             mantisa_datoZ+=1;
@@ -72,35 +72,26 @@ class scoreboard extends uvm_scoreboard;
                     end
                 end
 
-                3'b001:begin  //redondea a cero 
+          if (item.r_mode == 3'b001)begin  //redondea a cero 
                     //no se hace nada debido a que ya está truncado
                 end
-                3'b010:begin  //el último bit depende del signo del resultado, redondea para abajo                    
+          if (item.r_mode == 3'b010)begin  //el último bit depende del signo del resultado, redondea para abajo                    
                     if (sign_field_Z) begin
                         mantisa_datoZ+=1;
                     end
                 end
-                3'b011:begin  //el último bit depende del signo del resultado, redondea para arriba
+          if (item.r_mode == 3'b011)begin  //el último bit depende del signo del resultado, redondea para arriba
                     if (!sign_field_Z) begin
                         mantisa_datoZ+=1;
                     end
                 end
-                3'b100:begin  //suma 1 al dato de mantisa
+          if (item.r_mode == 3'b100)begin  //suma 1 al dato de mantisa
                     if (mantisaZ_sinredo[8]) begin
                         mantisa_datoZ+=1;
                     end
                 end
-                default: begin
-                    //ya está truncado
-                end
-            endcase            
+                           
         end         
-      	if (mantisa_datoZ[24]) begin
-            redo_mantisa_datoZ=mantisa_datoZ[23:1];
-            exponenteZ+=1; 
-        end else begin
-           redo_mantisa_datoZ=mantisa_datoZ[22:0];
-        end
       	      
         if ($rtoi(exponenteZ)<=0) begin
             exponente_dato_Z=8'b0; //Underflow
@@ -111,61 +102,56 @@ class scoreboard extends uvm_scoreboard;
         else begin
             exponente_dato_Z=exponenteZ; //Normal
         end
+      	
+      	if (mantisa_datoZ[24]) begin
+            redo_mantisa_datoZ=mantisa_datoZ[23:1];
+            exponenteZ+=1; 
+        end else begin
+           redo_mantisa_datoZ=mantisa_datoZ[22:0];
+        end
       
-      
-
         und_X  =!(|exponente_dato_X)?1 : 0; //si el exponente es 0 entonces hay underflow
         over_X =(&exponente_dato_X)? 1 : 0; //si todo el exponente son 1 entonces es overflow
-
         und_Y  =!(|exponente_dato_Y)?1 : 0; //si el exponente es 0 entonces hay underflow
         over_Y =(&exponente_dato_Y)? 1 : 0; //si todo el exponente son 1 entonces es overflow
-        
         und_Z  =!(|exponente_dato_Z)?1 : 0; 
         und_Z= und_Z|und_Y|und_X;
-
         over_Z =(&exponente_dato_Z)? 1 : 0; 
         over_Z = over_X|over_Y|over_Z;
-
-       
+      	inf_X = &exponente_dato_X & ~|mantisa_dato_X; //definición de inf
+        inf_Y = &exponente_dato_Y & ~|mantisa_dato_Y;
+        inf_Z = {und_X & over_Y} | {over_X & und_Y} | inf_Z; 
+        inf_Z = inf_X | inf_Y | inf_Z;
         nan_X = &exponente_dato_X & |mantisa_dato_X; //definicion de NaN
         nan_Y = &exponente_dato_Y & |mantisa_dato_Y;
-
         nan_Z = {und_X & over_Y} | {over_X & und_Y} | nan_Z; 
         nan_Z = nan_X | nan_Y | nan_Z; 
-      
-      
-        inf_X = &exponente_dato_X & ~|mantisa_dato_X; //definición de inf
-        inf_Y = &exponente_dato_Y & ~|mantisa_dato_Y;
-
-        inf_Z = {und_X & over_Y} | {over_X & und_Y} | inf_Z; 
-        inf_Z = inf_X | inf_Y | inf_Z; 
-      
-
-
+         
+		
         if (nan_Z) begin
-          resultZ={sign_field_Z,1'b0,8'hFF,1'b1,22'b0};  //resultado final correcto 
+          resultZ={sign_field_Z,1'b0,8'hFF,1'b1,22'b0};  //resultado final correcto para ese caso
         end 
         else if (inf_Z) begin
-          resultZ={sign_field_Z, 8'hFF,23'b0};        //resultado final correcto      
+          resultZ={sign_field_Z, 8'hFF,23'b0};        //resultado final correcto para ese caso
         end
         else if (und_Z) begin
-            resultZ={sign_field_Z,8'b0,23'b0};  //resultado final correcto 
+            resultZ={sign_field_Z,8'b0,23'b0};  //resultado final correcto para ese caso
         end 
         else if (over_Z) begin
-            resultZ={sign_field_Z,8'hFF,23'b0};  //resultado final correcto 
+            resultZ={sign_field_Z,8'hFF,23'b0};  //resultado final correcto para ese caso
         end
         else begin
-            resultZ={sign_field_Z,exponente_dato_Z,redo_mantisa_datoZ};  //resultado final correcto 
+            resultZ={sign_field_Z,exponente_dato_Z,redo_mantisa_datoZ};  //resultado final correcto si no es ningun caso de esquina
         end
 
       
       
       `uvm_info("SCBD", $sformatf("Mode = %b Entrada x = %b Entrada y = %b Resultado del DUT = %b Resultado esperado = %b Overflow = %b Underflow = %b", item.r_mode,item.fp_X,item.fp_Y,item.fp_Z,resultZ,item.ovrf,item.udrf), UVM_LOW)  
 
-      if(item.fp_Z != resultZ ) begin
-        `uvm_error("SCBD",$sformatf("Todo mal, resultados no coinciden  Result=%b Correct=%b", item.fp_Z,resultZ))
+      if(item.fp_Z != resultZ ) begin // se compara el dato esperado correcto con el del DUT
+        `uvm_error("SCBD",$sformatf("Todo mal, los resultados no coinciden  Resultado del DUT =%b Resultado esperado = %b", item.fp_Z,resultZ))
         end else begin
-          `uvm_info("SCBD",$sformatf("Todo bien, resultados si coinciden Result=%b Correct=%b",item.fp_Z,resultZ), UVM_HIGH)
+          `uvm_info("SCBD",$sformatf("Todo bien, los resultados si coinciden Result=%b Correct=%b",item.fp_Z,resultZ), UVM_HIGH)
         end
       
         //Impresion del reporte
