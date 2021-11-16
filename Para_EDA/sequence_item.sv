@@ -2,7 +2,7 @@
 //VERIFICACIÓN FUNCIONAL DE CIRCUITOS INTEGRADOS
 //Proyecto 2
 //Lenguaje: SystemVerilog
-//Creado por: Mac Alfred Pinnock Chacón (mcalfred32@gmail.com) y Susana Astorga
+//Creado por: Mac Alfred Pinnock Chacón (mcalfred32@gmail.com) y Susana Astorga (susana.0297.ar@gmail.com)
 class Item extends uvm_sequence_item;
 
   `uvm_object_utils(Item)  //se registra la clase en la fábrica
@@ -10,9 +10,9 @@ class Item extends uvm_sequence_item;
   rand bit [31:0]fp_X; //aleatorizacion de las entradas y del modo de redondeo
   rand bit [31:0]fp_Y;
   rand bit [2:0] r_mode;
-  bit [31:0] fp_Z; 
-  bit ovrf;
-  bit udrf;
+  bit [31:0] fp_Z; //defincion de la variable de salida
+  bit ovrf; //bandera (0/1) en caso de overflow
+  bit udrf; //bandera (0/1) en caso de underflow
   
   virtual function string convert2str();
     return $sformatf("fp_X=%0b, fp_Y=%0b, fp_Z=%0b, r_mode=%0b, ovrf=%0b, udrf=%0b",fp_X, fp_Y, fp_Z, r_mode, ovrf, udrf);
