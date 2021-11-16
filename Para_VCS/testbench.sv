@@ -41,7 +41,8 @@ module top_testbench;
 		clk <= 0;
 		`uvm_info("TOP", "Test start", UVM_LOW);
 		uvm_config_db#(virtual dut_if)::set(null,"uvm_test_top","dut_vif",_if); //se conecta la interface virtual con el test_top
-      run_test("test_escenario2"); //se coloca el nombre del test a probar (test_escenario1 o test_escenario2)
+      run_test("test_escenario2"); //se coloca el nombre del test a probar (test_escenario1 o test_escenario2), cuando se corre el correr.sh
+	  								// se corren los 2 escenarios de prueba uno detrás del otro
 	end
 	
 endmodule

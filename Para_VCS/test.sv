@@ -2,7 +2,7 @@
 //VERIFICACIÓN FUNCIONAL DE CIRCUITOS INTEGRADOS
 //Proyecto 2
 //Lenguaje: SystemVerilog
-//Creado por: Mac Alfred Pinnock Chacón (mcalfred32@gmail.com) y Susana Astorga
+//Creado por: Mac Alfred Pinnock Chacón (mcalfred32@gmail.com) y Susana Astorga (susana.0297.ar@gmail.com)
 class test extends uvm_test;
 
   `uvm_component_utils(test) //se registra la clase en la fábrica
@@ -63,7 +63,7 @@ class test_escenario1 extends test;
   virtual task run_phase(uvm_phase phase); //task del escenario 1 
     `uvm_info("escenario1", "Iniciando la ejecucion de la prueba", UVM_HIGH)
     phase.raise_objection(this);
-    seq.start(ambiente_instancia.agente_instancia.secuenciador_instancia);
+    seq.start(ambiente_instancia.agente_instancia.secuenciador_instancia); //inicializo formalmente el escenario de pruebas 1
     phase.drop_objection(this);
 
   endtask
@@ -92,7 +92,7 @@ class test_escenario2 extends  test;
   virtual task run_phase(uvm_phase phase); //task del escenario 2
     `uvm_info("escenario2", "Iniciando la ejecucion de la prueba", UVM_HIGH)
     phase.raise_objection(this);
-    seq.start(ambiente_instancia.agente_instancia.secuenciador_instancia);
+    seq.start(ambiente_instancia.agente_instancia.secuenciador_instancia); //inicializo formalmente el escenario de pruebas 2
     phase.drop_objection(this);
 
   endtask

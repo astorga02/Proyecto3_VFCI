@@ -2,21 +2,20 @@
 //VERIFICACIÓN FUNCIONAL DE CIRCUITOS INTEGRADOS
 //Proyecto 2
 //Lenguaje: SystemVerilog
-//Creado por: Mac Alfred Pinnock Chacón (mcalfred32@gmail.com) y Susana Astorga
+//Creado por: Mac Alfred Pinnock Chacón (mcalfred32@gmail.com) y Susana Astorga (susana.0297.ar@gmail.com)
 // Secuencia aleatoria 
 class seq_aleatoria extends uvm_sequence;
   `uvm_object_utils(seq_aleatoria); //se registra la clase en la fábrica
   function new(string name="seq_aleatoria"); //se crea el constructor
     super.new(name);
   endfunction
-  //rand int num_item; //número de items que van a ser enviados
-  //num_item = numero_tests;  // Limite de la cantidad aleatoria de items enviados, o sea un número entre 5 y 10
+
   virtual task body();
     `uvm_info("SEQ", "Inicio de la secuencia aletoria", UVM_HIGH)
     for(int i = 0; i < numero_tests; i++)begin
       Item item = Item::type_id::create("item");
       item.c_item_aleat.constraint_mode(1); //Resticciones para cada caso
-      item.c_r_mode.constraint_mode(1);
+      item.c_r_mode.constraint_mode(1); //Se activa la restriccion para el modo de redondeo, esta activa siempre
       item.c_ovrf.constraint_mode(0);
       item.c_udrf.constraint_mode(0);
       item.c_NaN.constraint_mode(0);
@@ -46,7 +45,7 @@ class seq_alternancia extends uvm_sequence;
         Item item = Item::type_id::create("item");
         start_item(item);
         item.c_item_aleat.constraint_mode(0); //Resticciones para cada caso
-        item.c_r_mode.constraint_mode(1);   
+        item.c_r_mode.constraint_mode(1); //Se activa la restriccion para el modo de redondeo, esta activa siempre  
         item.c_ovrf.constraint_mode(0);
         item.c_udrf.constraint_mode(0);
         item.c_NaN.constraint_mode(0);
@@ -76,9 +75,9 @@ class seq_overflow extends uvm_sequence;
   virtual task body();
     for(int i = 0; i <= numero_tests; i++)begin
       Item item = Item::type_id::create("item");
-      item.c_r_mode.constraint_mode(1); //Resticciones para cada caso
+      item.c_r_mode.constraint_mode(1); //Se activa la restriccion para el modo de redondeo, esta activa siempre
       item.c_item_aleat.constraint_mode(0);
-      item.c_ovrf.constraint_mode(1);
+      item.c_ovrf.constraint_mode(1); //se activa la restriccion porque se va a utlizar el caso de overflow
       item.c_udrf.constraint_mode(0);
       item.c_NaN.constraint_mode(0);
       item.c_inf.constraint_mode(0);
@@ -104,10 +103,10 @@ class seq_underflow extends uvm_sequence;
   virtual task body();
     for(int i = 0; i < numero_tests; i++)begin
       Item item = Item::type_id::create("item");
-      item.c_r_mode.constraint_mode(1); //Resticciones para cada caso
+      item.c_r_mode.constraint_mode(1); //Se activa la restriccion para el modo de redondeo, esta activa siempre
       item.c_item_aleat.constraint_mode(0);
       item.c_ovrf.constraint_mode(0);
-      item.c_udrf.constraint_mode(1);
+      item.c_udrf.constraint_mode(1); //se activa la restriccion porque se va a utlizar el caso de underflow
       item.c_NaN.constraint_mode(0);
       item.c_inf.constraint_mode(0);
       start_item(item);
@@ -134,11 +133,11 @@ class seq_NaN extends uvm_sequence;
   virtual task body();
     for(int i = 0; i < numero_tests; i++)begin
       Item item = Item::type_id::create("item");
-      item.c_r_mode.constraint_mode(1); //Resticciones para cada caso
+      item.c_r_mode.constraint_mode(1); //Se activa la restriccion para el modo de redondeo, esta activa siempre
       item.c_item_aleat.constraint_mode(0);
       item.c_ovrf.constraint_mode(0);
       item.c_udrf.constraint_mode(0);
-      item.c_NaN.constraint_mode(1);
+      item.c_NaN.constraint_mode(1); //se activa la restriccion porque se va a utlizar el caso de no ser un número
       item.c_inf.constraint_mode(0);
       start_item(item);
       if(!item.randomize()) begin
@@ -163,12 +162,12 @@ class seq_inf extends uvm_sequence;
   virtual task body();
     for(int i = 0; i <= numero_tests; i++)begin
       Item item = Item::type_id::create("item");
-      item.c_r_mode.constraint_mode(1); //Resticciones para cada caso
+      item.c_r_mode.constraint_mode(1); //Se activa la restriccion para el modo de redondeo, esta activa siempre
       item.c_item_aleat.constraint_mode(0);
       item.c_ovrf.constraint_mode(0);
       item.c_udrf.constraint_mode(0);
       item.c_NaN.constraint_mode(0);
-      item.c_inf.constraint_mode(1);
+      item.c_inf.constraint_mode(1); //se activa la restriccion porque se va a utlizar el caso de infinito
       start_item(item);
       if(!item.randomize())begin
         `uvm_error("SEQ", "Fallo en aleatorizar")
@@ -180,6 +179,8 @@ class seq_inf extends uvm_sequence;
   endtask
 endclass
 
+  // A partir de aqui se definen los escenarios de prueba, 2 en total, que llaman a las secuencias de los casos difinidos
+  // anteriormente.
   // Escenario 1:
   // Aleatorio
 class escenario1 extends  uvm_sequence;
@@ -191,9 +192,9 @@ class escenario1 extends  uvm_sequence;
   seq_aleatoria Secuencia_aleatorio;
   task body();
     string concatenado;
-    concatenado = {"Dato_X",",","Dato_Y",",","Resultado_final_Z",",","Resultado_final_correcto",",","Modo_redondeo",",","Overflow",",","Underflow"};//orden de las columnas para la impresion del reporte
+    concatenado = {"Dato_X",",","Dato_Y",",","Resultado_final_Z_DUT",",","Resultado_final_esperado",",","Modo_redondeo",",","Overflow",",","Underflow"};//orden de las columnas para la impresion del reporte
       $system($sformatf("echo %0s >> reporte.csv", concatenado));
-    `uvm_do(Secuencia_aleatorio);
+    `uvm_do(Secuencia_aleatorio); //se inicializa la secuencia del caso de modo aleatorio definido anteriromente.
  endtask
 endclass
 
@@ -205,14 +206,14 @@ class escenario2 extends  uvm_sequence;
   function new(string name="escenario2"); //se crea el constructor
     super.new(name);
   endfunction
-  seq_alternancia Secuencia_alternancia;
-  seq_overflow Secuencia_overflow;
-  seq_underflow Secuencia_underflow;
-  seq_NaN Secuencia_NaN;
-  seq_inf Secuencia_inf;
+  seq_alternancia Secuencia_alternancia; //se inicializa la secuencia del caso de alternancia definido anteriromente.
+  seq_overflow Secuencia_overflow; //se inicializa la secuencia del caso de overflow definido anteriromente.
+  seq_underflow Secuencia_underflow; //se inicializa la secuencia del caso de underflow definido anteriromente.
+  seq_NaN Secuencia_NaN; //se inicializa la secuencia del caso de no es numero definido anteriromente.
+  seq_inf Secuencia_inf; //se inicializa la secuencia del caso deinfinito definido anteriromente.
   task body();
      string concatenado;
-     concatenado = {"Dato_X",",","Dato_Y",",","Resultado_final_Z",",","Resultado_final_correcto",",","Modo_redondeo",",","Overflow",",","Underflow"};//orden de las columnas para el reporte
+     concatenado = {"Dato_X",",","Dato_Y",",","Resultado_final_Z_DUT",",","Resultado_final_esperado",",","Modo_redondeo",",","Overflow",",","Underflow"};//orden de las columnas para el reporte
      $system($sformatf("echo %0s >> reporte.csv", concatenado));
     `uvm_do(Secuencia_alternancia);
     `uvm_do(Secuencia_overflow);
